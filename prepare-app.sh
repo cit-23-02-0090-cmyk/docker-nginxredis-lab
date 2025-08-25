@@ -2,16 +2,12 @@
 
 echo "Preparing app ..."
 
-# Docker network ekak hadagannawa (api containers communicate karanna puluwan)
-docker network create my-app-network
+docker network create my-app-network 2>/dev/null || echo "Network already exists, continuing..."
 
-# Persistent volume ekak hadagannawa (redis data store karanna)
-docker volume create redis-data
+docker volume create redis-data 2>/dev/null || echo "Volume already exists, continuing..."
 
-# Nginx custom configuration folder ekak hadagannawa
 mkdir -p nginx-config
 
-# Nginx custom configuration file ekak hadagannawa
 cat > nginx-config/default.conf << EOF
 server {
     listen 80;
@@ -30,7 +26,6 @@ server {
 }
 EOF
 
-# Custom HTML page ekak hadagannawa
 mkdir -p html-content
 cat > html-content/index.html << EOF
 <!DOCTYPE html>
@@ -59,7 +54,6 @@ cat > html-content/index.html << EOF
 </html>
 EOF
 
-# Custom Dockerfile for Nginx hadagannawa
 cat > Dockerfile << EOF
 FROM nginx:alpine
 COPY nginx-config/default.conf /etc/nginx/conf.d/default.conf
@@ -69,10 +63,10 @@ EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
 EOF
 
-# Custom Nginx image build karanawa
+echo "Building custom Nginx image..."
 docker build -t custom-nginx:1.0 .
 
 echo "App preparation complete."
-echo "Network 'my-app-network' created."
-echo "Volume 'redis-data' created."
+echo "Network 'my-app-network' ready."
+echo "Volume 'redis-data' ready."
 echo "Custom Nginx image 'custom-nginx:1.0' built successfully."
